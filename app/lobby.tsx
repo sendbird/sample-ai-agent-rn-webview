@@ -1,11 +1,11 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { useUser } from '@/libs/user';
-import { router } from 'expo-router';
-import NotificationsTab from '@/libs/notifications/NotificationsTab';
-import MessagesTab from '@/libs/messages/MessagesTab';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { useUser } from "@/libs/user";
+import { router } from "expo-router";
+import NotificationsTab from "@/libs/notifications/NotificationsTab";
+import ConversationListTab from "@/libs/messages/ConversationListTab";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -14,7 +14,7 @@ function LobbyHeader() {
 
   const handleLogout = () => {
     logout();
-    router.replace('/login');
+    router.replace("/login");
   };
 
   return (
@@ -39,19 +39,19 @@ export default function LobbyScreen() {
           tabBarStyle: styles.tabBar,
           tabBarLabelStyle: styles.tabLabel,
           tabBarIndicatorStyle: styles.tabIndicator,
-          tabBarActiveTintColor: '#742DDD',
-          tabBarInactiveTintColor: '#666',
+          tabBarActiveTintColor: "#742DDD",
+          tabBarInactiveTintColor: "#666",
         }}
       >
         <Tab.Screen
           name="Notifications"
           component={NotificationsTab}
-          options={{ title: 'Notifications' }}
+          options={{ title: "Notifications" }}
         />
         <Tab.Screen
           name="Messages"
-          component={MessagesTab}
-          options={{ title: 'AI Messages' }}
+          component={ConversationListTab}
+          options={{ title: "Messages" }}
         />
       </Tab.Navigator>
     </SafeAreaView>
@@ -61,51 +61,51 @@ export default function LobbyScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#f5f5f5",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   welcomeText: {
     fontSize: 16,
-    color: '#666',
+    color: "#666",
   },
   userText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: "600",
+    color: "#333",
   },
   logoutButton: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: "#f0f0f0",
     borderRadius: 6,
   },
   logoutText: {
-    color: '#666',
-    fontWeight: '500',
+    color: "#666",
+    fontWeight: "500",
   },
   tabBar: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     elevation: 0,
     shadowOpacity: 0,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: "#eee",
   },
   tabLabel: {
     fontSize: 16,
-    fontWeight: '600',
-    textTransform: 'none',
+    fontWeight: "600",
+    textTransform: "none",
   },
   tabIndicator: {
-    backgroundColor: '#742DDD',
+    backgroundColor: "#742DDD",
     height: 3,
   },
 });

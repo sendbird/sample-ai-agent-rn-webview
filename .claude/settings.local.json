@@ -17,7 +17,10 @@
       "mcp__mobile__mobile_use_device",
       "mcp__mobile__mobile_use_default_device",
       "Bash(git add:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(git commit:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(mv:*)"
     ],
     "deny": []
   }

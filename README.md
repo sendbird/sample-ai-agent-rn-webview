@@ -1,50 +1,137 @@
-# Welcome to your Expo app 👋
+# RN Messenger WebView
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native Expo demo application that integrates Sendbird UIKit with WebView to showcase AI Agent capabilities.
 
-## Get started
+## 📱 Features
 
-1. Install dependencies
+- **Sendbird UIKit Integration**: Native chat functionality using Sendbird UIKit React Native
+- **AI Agent WebView Integration**: Seamless integration of Sendbird AI Agent Web SDK
+- **Dual Tab Interface**: Notifications (native) and AI Messages (WebView)
+- **Real-time Communication**: Bidirectional communication between React Native and WebView
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## 🛠 Installation
 
 ```bash
-npm run reset-project
+# Install dependencies
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🚀 How to Run
 
-## Learn more
+```bash
+# Start the Expo development server
+npx expo start
 
-To learn more about developing your project with Expo, look at the following resources:
+# Run on iOS
+# Press 'i' in the terminal or scan QR code with Expo Go app
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# Run on Android  
+# Press 'a' in the terminal or scan QR code with Expo Go app
 
-## Join the community
+# Run on web
+# Press 'w' in the terminal
+```
 
-Join our community of developers creating universal apps.
+## 📁 Project Structure
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+app/
+├── _layout.tsx          # Root layout with navigation
+├── login.tsx           # Login screen
+├── lobby.tsx           # Main tab navigation
+├── notification-messages.tsx  # Native chat messages
+└── ai-agent-messages.tsx     # AI Agent conversation
+
+libs/
+├── messages/
+│   ├── ConversationListTab/  # AI Agent conversation list
+│   │   ├── index.tsx        # React Native component
+│   │   └── html.tsx         # WebView HTML template
+│   └── ConversationPage/     # AI Agent conversation view
+│       ├── index.tsx        # React Native component
+│       └── html.tsx         # WebView HTML template
+├── notifications/      # Native notifications
+├── user/              # User context management
+└── constants.ts       # App configuration
+```
+
+## 🔧 Messages Directory Integration
+
+The `libs/messages` directory contains the WebView integration for Sendbird AI Agent Web SDK:
+
+### WebView Components
+
+1. **ConversationListTab**: Displays the list of AI Agent conversations
+   - Loads AI Agent Web SDK via CDN
+   - Implements custom React components using `customMainComponent`
+   - Handles conversation selection and navigation
+
+2. **ConversationPage**: Shows individual AI Agent conversation
+   - Receives conversation parameters from React Native
+   - Manages conversation state and messages
+   - Handles back navigation to list view
+
+### Communication Protocol
+
+The integration uses a bidirectional message passing system:
+
+**WebView → React Native**:
+- `SDK_LOADED`: SDK successfully loaded
+- `SDK_INITIALIZED`: SDK initialization complete
+- `SDK_ERROR`: Error occurred
+- `OPEN_CONVERSATION`: User selected a conversation
+- `CLOSE_CONVERSATION`: User wants to go back
+- `TOKEN_REFRESH_REQUIRED`: Auth token needs refresh
+
+**React Native → WebView**:
+- `INITIALIZE_SDK`: Initialize with app credentials
+- `START_CONVERSATION`: Open specific conversation
+- `TOKEN_REFRESHED`: Provide new auth token
+
+### Implementation Example
+
+```typescript
+// React Native side
+const handleMessage = (event) => {
+  const message = JSON.parse(event.nativeEvent.data);
+  switch (message.type) {
+    case 'SDK_LOADED':
+      initializeAIAgent();
+      break;
+    // ... handle other messages
+  }
+};
+
+// WebView side
+function sendMessageToRN(type, payload = {}) {
+  window.ReactNativeWebView.postMessage(JSON.stringify({
+    type,
+    payload
+  }));
+}
+```
+
+## 🔑 Configuration
+
+Update the following constants in `libs/constants.ts`:
+
+```typescript
+export const SENDBIRD_APP_ID = "your-app-id";
+export const AI_AGENT_ID = "your-agent-id";
+```
+
+## 📦 Dependencies
+
+- React Native & Expo
+- @sendbird/chat & @sendbird/uikit-react-native
+- react-native-webview
+- @react-navigation/material-top-tabs
+- expo-router
+
+## 🤝 Contributing
+
+Feel free to submit issues and enhancement requests!
+
+## 📄 License
+
+This project is licensed under the MIT License.

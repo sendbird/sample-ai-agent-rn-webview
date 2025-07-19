@@ -2,153 +2,242 @@ export const ConversationHTML = `
 <!DOCTYPE html>
 <html lang="en" style="height: 100%">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sendbird AI Agent</title>
-    <style>
-        body,
-        #sendbird-ai-agent-container {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-        #sb-agent-entry {
-            display: flex;
-            width: 100% !important;
-            height: 100% !important;
-        }
-        .header {
-            background: #742DDD;
-            color: white;
-            padding: 16px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            height: 60px;
-            box-sizing: border-box;
-        }
-        .back-button {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .header-title {
-            font-size: 18px;
-            font-weight: 600;
-        }
-        .agent-container {
-            position: absolute;
-            top: 60px;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            width: 100%;
-        }
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: #666;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Agent Messages</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: #f5f5f5;
+      height: 100vh;
+      width: 100vw;
+    }
+    
+    #sendbird-ai-agent-container {
+      width: 100%;
+      height: 100%;
+    }
+    
+    #sb-agent-entry {
+      display: flex;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    .loading-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f5f5f5;
+    }
+    
+    .loading-text {
+      color: #666;
+      font-size: 16px;
+    }
+    
+    .error-container {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f5f5f5;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .error-text {
+      color: #d32f2f;
+      font-size: 16px;
+      text-align: center;
+      max-width: 300px;
+    }
+    
+    .retry-button {
+      background: #742DDD;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .retry-button:hover {
+      background: #632BB5;
+    }
+  </style>
 </head>
 <body>
-    <div class="header">
-        <button class="back-button" onclick="goBack()">← Back</button>
-        <div class="header-title">AI Agent</div>
-        <div></div>
-    </div>
-    
-    <div class="agent-container">
-        <div class="loading" id="loadingIndicator">Loading AI Agent...</div>
-        <div id="sendbird-ai-agent-container"></div>
-    </div>
+  <div class="loading-container" id="loadingContainer">
+    <div class="loading-text">Loading AI Agent...</div>
+  </div>
+  
+  <div class="error-container" id="errorContainer">
+    <div class="error-text" id="errorText">Failed to load AI Agent</div>
+    <button class="retry-button" onclick="initializeAgent()">Retry</button>
+  </div>
 
-    <script type="module">
-        let messenger = null;
+  <script type="module">
+    let messenger = null;
+    let isSDKLoaded = false;
 
-        async function initializeAIAgent() {
-            try {
-                console.log('Loading Sendbird AI Agent...');
-                
-                // Import the loadMessenger function from Sendbird CDN
-                const { loadMessenger } = await import("https://aiagent.sendbird.com/orgs/default/index.js");
-                
-                console.log('Creating messenger instance...');
-                messenger = await loadMessenger({
-                    useShadowDOM: false,
-                    customMainComponent: ({ messenger, react }) => {
-                        return (props) => {
-                            return react.createElement(
-                                messenger.AgentProviderContainer,
-                                { ...props, fullscreen: true },
-                                [
-                                    react.createElement(messenger.Conversation)
-                                ]
-                            );
-                        };
-                    },
-                });
-
-                console.log('Initializing messenger...');
-                await messenger.initialize({
-                    appId: "10306808-B7F3-436F-9F5C-29F431B47B73",
-                    aiAgentId: "1bad24e5-70c7-4ca4-b582-37d1b8f1a664",
-                    logLevel: 0,
-                    userSessionInfo: {
-                        userId: "demo-user-" + Math.random().toString(36).substr(2, 9),
-                        sessionHandler: {
-                            onSessionTokenRequired(resolve, reject) {
-                                // For demo purposes, we'll use anonymous auth
-                                resolve(null);
-                            },
-                        },
-                    },
-                });
-
-                // Hide loading indicator - customMainComponent renders automatically
-                document.getElementById('loadingIndicator').style.display = 'none';
-                
-                console.log('AI Agent initialized successfully');
-                
-            } catch (error) {
-                console.error('Failed to initialize AI Agent:', error);
-                document.getElementById('loadingIndicator').innerHTML = 
-                    'Failed to load AI Agent. Please try again.';
-            }
+    function sendMessageToRN(type, payload = {}) {
+      const message = {
+        type,
+        payload: {
+          ...payload,
+          timestamp: Date.now()
         }
+      };
+      
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(JSON.stringify(message));
+      }
+    }
 
-        function goBack() {
-            // With customMainComponent, no need to explicitly close
-            window.ReactNativeWebView.postMessage('goBack');
-        }
-
-        // Initialize when page loads
-        window.addEventListener('load', initializeAIAgent);
-        
-        // Cleanup when page unloads
-        window.addEventListener('beforeunload', () => {
-            if (messenger) {
-                try {
-                    messenger.destroy();
-                } catch (error) {
-                    console.error('Error destroying messenger:', error);
-                }
-            }
+    async function loadSDK(params) {
+      try {
+        const { loadMessenger } = await import("https://aiagent.sendbird.com/orgs/default/index.js");
+        messenger = await loadMessenger({
+          useShadowDOM: false,
+          customMainComponent: ({ messenger, react }) => {
+            return (props) => {
+              const [channelUrl, setChannelUrl] = react.useState('');
+              
+              react.useEffect(() => {
+                setTimeout(() => {
+                  setChannelUrl(params.channelUrl);
+                }, 1000);
+              }, [params.status, params.channelUrl]);
+              
+              return react.createElement(
+                messenger.AgentProviderContainer,
+                props,
+                [
+                  !channelUrl ? null : react.createElement(messenger.Conversation, {
+                    closedChannelUrl: channelUrl,
+                    onClearClosedChannelUrl: () => {
+                      sendMessageToRN('CLOSE_CONVERSATION');
+                    },
+                  },
+                  [
+                    react.createElement(messenger.ConversationLayout.Header, {
+                      component: () => null,
+                    }),
+                  ])
+                ]
+              );
+            };
+          },
         });
-    </script>
+        
+        isSDKLoaded = true;
+        sendMessageToRN('SDK_LOADED');
+      } catch (error) {
+        showError('Failed to load AI Agent SDK');
+        sendMessageToRN('SDK_ERROR', { error: error.message });
+      }
+    }
+    
+    const sessionHandlerDeferred = {
+      promise: null,
+      resolve: null,
+      reject: null
+    };
+
+    async function initializeSDK(params) {
+      try {
+        if (!messenger) {
+          throw new Error('SDK not loaded');
+        }
+        
+        const userSessionInfo = params.userSessionInfo ? {
+          userId: params.userSessionInfo.userId,
+          authToken: params.userSessionInfo.authToken,
+          sessionHandler: {
+            onSessionTokenRequired: (resolve, reject) => {
+              sessionHandlerDeferred.promise = new Promise((tokenResolve, tokenReject) => {
+                sessionHandlerDeferred.resolve = tokenResolve;
+                sessionHandlerDeferred.reject = tokenReject;
+              });
+              
+              sendMessageToRN('TOKEN_REFRESH_REQUIRED');
+            }
+          }
+        } : undefined;
+        
+        messenger.initialize({
+          ...params,
+          userSessionInfo,
+        });
+        
+        hideLoading();
+        sendMessageToRN('SDK_INITIALIZED', { success: true });
+      } catch (error) {
+        showError('Failed to initialize AI Agent');
+        sendMessageToRN('SDK_ERROR', { error: error.message });
+      }
+    }
+
+    async function handleCommand(commandStr) {
+      try {
+        const command = JSON.parse(commandStr);
+        
+        switch (command.type) {
+          case 'START_CONVERSATION':
+            await loadSDK(command.payload.loadParams);
+            initializeSDK(command.payload.initParams);
+            break;
+          case 'TOKEN_REFRESHED':
+            if (sessionHandlerDeferred.promise) {
+              sessionHandlerDeferred.resolve(command.payload.authToken);
+              sessionHandlerDeferred.promise = null;
+              sessionHandlerDeferred.resolve = null;
+              sessionHandlerDeferred.reject = null;
+            }
+            break;
+          default:
+        }
+      } catch (error) {
+      }
+    }
+
+    function showLoading() {
+      document.getElementById('loadingContainer').style.display = 'flex';
+      document.getElementById('errorContainer').style.display = 'none';
+    }
+
+    function hideLoading() {
+      document.getElementById('loadingContainer').style.display = 'none';
+    }
+
+    function showError(message) {
+      document.getElementById('loadingContainer').style.display = 'none';
+      document.getElementById('errorContainer').style.display = 'flex';
+      document.getElementById('errorText').textContent = message;
+    }
+
+    function initializeAgent() {
+      showLoading();
+      if (!isSDKLoaded) {
+        sendMessageToRN('WEBVIEW_LOADED');
+      } 
+    }
+
+    window.handleCommand = handleCommand;
+    window.initializeAgent = initializeAgent;
+    window.addEventListener('load', () => {
+      initializeAgent();
+    });
+  </script>
 </body>
 </html>
 `;

@@ -86,7 +86,10 @@ export default function RootLayout() {
             />
             <Stack.Screen
               name="ai-agent-messages"
-              options={{ presentation: "modal" }}
+              options={{
+                presentation: "modal",
+                headerShown: true,
+              }}
             />
           </Stack>
           <StatusBar style="auto" />

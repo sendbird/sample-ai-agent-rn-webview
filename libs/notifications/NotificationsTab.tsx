@@ -43,7 +43,6 @@ export default function NotificationsTab() {
               handleChannelPress(channel);
             })
             .catch((error) => {
-              console.error("Failed to create channel:", error);
             });
         }}
       />

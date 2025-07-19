@@ -35,7 +35,6 @@ export function UserProvider({ children }: UserProviderProps) {
         profileUrl: sendbirdUser.profileUrl,
       });
     } catch (error) {
-      console.error("Login failed:", error);
     } finally {
       setIsLoading(false);
     }

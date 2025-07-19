@@ -3,7 +3,21 @@
     "allow": [
       "Bash(git remote add:*)",
       "Bash(npm install:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(rm:*)",
+      "mcp__ios-simulator__screenshot",
+      "Bash(find:*)",
+      "Bash(npx expo install expo-image-picker expo-document-picker expo-media-library expo-file-system expo-clipboard expo-notifications expo-av expo-video-thumbnails expo-image-manipulator)",
+      "mcp__ios-simulator__ui_tap",
+      "Bash(npm ls:*)",
+      "mcp__mobile__mobile_take_screenshot",
+      "mcp__mobile__mobile_list_available_devices",
+      "mcp__mobile__mobile_use_device",
+      "mcp__mobile__mobile_use_default_device",
+      "Bash(git add:*)",
+      "Bash(git reset:*)"
     ],
     "deny": []
   }
